@@ -141,8 +141,6 @@ const server = http.createServer((req, res) => {
         deleteIndex = dogs.findIndex(el => el["dogId"] === dogId);
         dogs.splice(deleteIndex, 1);
 
-        // res.body = JSON.stringify(dogs);
-        // res.write(res.body);
         return res.end(JSON.stringify({"message": "Successfully deleted"}));
       }
       
