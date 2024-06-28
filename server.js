@@ -57,7 +57,6 @@ const server = http.createServer((req, res) => {
       res.statusCode = 200;
       res.setHeader("Content-Type", "application/json") // how do I know which content-type to choose from?
       res.write(JSON.stringify(dogs));
-      // console.log(JSON.stringify(dogs));
       return res.end();
     }
 
@@ -69,15 +68,6 @@ const server = http.createServer((req, res) => {
         // Your code here 
         res.status = 200;
         res.setHeader("Content-Type", "application/json");
-
-        // const func = async function() {
-        //   const url = "http://localhost:8000/dogs";
-        //   const res = await fetch(url);
-        //   const body = await res.json();
-        //   return body;
-        // }
-
-        // const dogs = func();
         const dog = dogs.find(el => el["dogId"] === dogId);
 
         res.write(JSON.stringify(dog));
@@ -85,10 +75,34 @@ const server = http.createServer((req, res) => {
       return res.end();
     }
 
+    // code for fetch through browser
+    // const func = async function() {
+    //   const url = "http://localhost:8000/dogs";
+    //   const res = await fetch(url);
+    //   const body = await res.json();
+    //   console.log(body);
+    // }
+
+    // func();
+
     // POST /dogs
     if (req.method === 'POST' && req.url === '/dogs') {
       const { name, age } = req.body;
       // Your code here 
+      res.statusCode = 201;
+      res.setHeader("Content-Type", "application/json");
+      const dogId = getNewDogId();
+      const newDog = {
+        "dogId": dogId,
+        "name": name,
+         "age": age
+      }
+      dogs.push(newDog);
+      console.log('after post', dogs);
+      res.body = JSON.stringify(newDog);
+
+      res.write(res.body);
+
       return res.end();
     }
 
@@ -96,20 +110,42 @@ const server = http.createServer((req, res) => {
     if ((req.method === 'PUT' || req.method === 'PATCH')  && req.url.startsWith('/dogs/')) {
       const urlParts = req.url.split('/');
       if (urlParts.length === 3) {
-        const dogId = urlParts[2];
+        const dogId = Number(urlParts[2]);
         // Your code here 
+        const { name, age } = req.body;
+        res.statusCode = 200; // 201 is only for new resource
+        res.setHeader("Content-Type", "application/json");
+
+        updateDog = dogs.find(el => el["dogId"] === dogId);
+        updateDog.name = name //?? updateDog.name;
+        updateDog.age = age //?? updateDog.age;
+
+
+        return res.end(JSON.stringify(updateDog));
+
+        // res.write(res.body);
       }
-      return res.end();
+      // return res.end();
     }
+
 
     // DELETE /dogs/:dogId
     if (req.method === 'DELETE' && req.url.startsWith('/dogs/')) {
       const urlParts = req.url.split('/');
       if (urlParts.length === 3) {
-        const dogId = urlParts[2];
+        const dogId = Number(urlParts[2]);
         // Your code here 
+        res.statusCode = 200;
+        res.setHeader("Content-Type", "application/json");
+
+        deleteIndex = dogs.findIndex(el => el["dogId"] === dogId);
+        dogs.splice(deleteIndex, 1);
+
+        // res.body = JSON.stringify(dogs);
+        // res.write(res.body);
+        return res.end(JSON.stringify({"message": "Successfully deleted"}));
       }
-      return res.end();
+      
     }
 
     // No matching endpoint
